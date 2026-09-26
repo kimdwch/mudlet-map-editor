@@ -1,5 +1,5 @@
-import type { MudletColor } from '../mapIO';
-import { DEFAULT_LABEL_FONT, type LabelFont, type LabelPadding, type LabelSnapshot, type LabelStyleParams, type LabelTextAlign } from './types';
+import type { MudletColor, MudletMap } from '../mapIO';
+import { DEFAULT_LABEL_FONT, type Command, type LabelFont, type LabelPadding, type LabelSnapshot, type LabelStyleParams, type LabelTextAlign } from './types';
 import { generateLabelPixmap, labelSizeForText } from './labelPixmap';
 
 /** A colour in a preset: `#rrggbb`, `#rrggbbaa`, or a raw Mudlet colour. */
@@ -148,4 +148,48 @@ export function getLabelPreset(id: string | null | undefined): LabelPreset | nul
     if (registry[i].id === id) return registry[i];
   }
   return null;
+}
+
+/** Where a preset was applied from. */
+export type LabelPresetSource = 'panel' | 'newLabel' | 'script';
+
+/** What {@link import('./plugin').EditorPlugin.onLabelPresetApplied} is told about one application of a preset. */
+export interface LabelPresetAppliedContext {
+  preset: LabelPreset;
+  areaId: number;
+  labelId: number;
+  /** The label before the preset, or `null` for a label the preset is creating. */
+  before: LabelSnapshot | null;
+  /** The label as the preset leaves it. */
+  after: LabelSnapshot;
+  source: LabelPresetSource;
+  /** The map as it stands before the preset's own commands are applied. */
+  map: MudletMap;
+}
+
+export type LabelPresetAppliedHandler = (ctx: LabelPresetAppliedContext) => Command[] | void;
+
+let appliedHandlers: LabelPresetAppliedHandler[] = [];
+
+/** Replace the handlers told about preset applications. Called with every plugin's `onLabelPresetApplied`. */
+export function registerLabelPresetAppliedHandlers(handlers: LabelPresetAppliedHandler[]): void {
+  appliedHandlers = [...handlers];
+}
+
+/**
+ * The extra commands plugins want recorded alongside a preset application, in
+ * plugin order. They go in the same undo step as the preset. A handler that
+ * throws is logged and skipped, so one plugin can't block applying a preset.
+ */
+export function labelPresetAppliedCommands(ctx: LabelPresetAppliedContext): Command[] {
+  const out: Command[] = [];
+  for (const handler of appliedHandlers) {
+    try {
+      const cmds = handler(ctx);
+      if (cmds) out.push(...cmds);
+    } catch (err) {
+      console.error('[labelPresets] onLabelPresetApplied handler failed:', err);
+    }
+  }
+  return out;
 }

@@ -28,7 +28,7 @@ import { loadFileIntoStore } from './editor/loadFile';
 import { builtInFormats, setMapFormats, matchFormatForFile, type MapFormat } from './editor/formats';
 import type { EditorPlugin, RoomPanelSection, ToolbarAction } from './editor/plugin';
 import { registerLabelStyles } from './editor/labelStyles';
-import { registerLabelPresets } from './editor/labelPresets';
+import { registerLabelPresetAppliedHandlers, registerLabelPresets } from './editor/labelPresets';
 import { registerLabelPolicy } from './editor/labelPolicy';
 import { collectWarnings } from './editor/warnings';
 
@@ -145,6 +145,12 @@ export default function App({ plugins = [], title = 'Mudlet Map Editor' }: { plu
   useEffect(() => {
     registerLabelPresets(pluginLabelPresets);
   }, [pluginLabelPresets]);
+
+  useEffect(() => {
+    registerLabelPresetAppliedHandlers(
+      plugins.flatMap((p) => (p.onLabelPresetApplied ? [p.onLabelPresetApplied.bind(p)] : [])),
+    );
+  }, [plugins]);
 
   // Label policy, read by the pixmap generator and by the reader's userData
   // sync. Registered on mount, before any map can be loaded, so the load-time

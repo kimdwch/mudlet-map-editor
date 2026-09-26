@@ -7,7 +7,7 @@ import { CARDINAL_DIRECTIONS, DIR_SHORT, DIR_INDEX, OPPOSITE, normalizeCustomLin
 import { inferDirection, is2DCardinal, getExit } from './mapHelpers';
 import { snapshotFromRawLabel } from './reader/EditorMapReader';
 import { labelSizeForText } from './labelPixmap';
-import { applyLabelPreset, getLabelPresets } from './labelPresets';
+import { applyLabelPreset, getLabelPresets, labelPresetAppliedCommands } from './labelPresets';
 import { getLabelStyle, getLabelStyles, resolveStyleParams } from './labelStyles';
 import { PIXMAP_REGEN, pixmapRefFor } from './pixmapRefs';
 
@@ -625,7 +625,11 @@ export function runScript(code: string, scene: SceneHandle): ScriptResult {
       const cur = assertLabel(areaId, id, what);
       const p = getLabelPresets().find((x) => x.id === preset) ?? getLabelPresets().find((x) => x.name === preset);
       if (!p) throw new Error(`${what}: unknown preset '${preset}' — see labelPresets()`);
-      return commitLabel(areaId, cur, applyLabelPreset(cur, p));
+      const next = applyLabelPreset(cur, p);
+      const changed = commitLabel(areaId, cur, next);
+      const extra = labelPresetAppliedCommands({ preset: p, areaId, labelId: id, before: cur, after: next, source: 'script', map });
+      for (const c of extra) push(c);
+      return changed || extra.length > 0;
     },
   };
 

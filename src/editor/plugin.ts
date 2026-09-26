@@ -3,7 +3,8 @@ import type { MudletMap, MudletRoom } from '../mapIO';
 import type { SwatchSet } from './types';
 import type { SceneHandle } from './scene';
 import type { LabelStyle } from './labelStyles';
-import type { LabelPreset } from './labelPresets';
+import type { LabelPreset, LabelPresetAppliedContext } from './labelPresets';
+import type { Command } from './types';
 import type { LabelPolicy } from './labelPolicy';
 import type { MapFormat } from './formats';
 
@@ -125,6 +126,12 @@ export interface EditorPlugin {
    *  offered in the label panel and used as the starting point for new labels.
    *  See {@link LabelPreset}. */
   labelPresets?(): LabelPreset[];
+  /** Told whenever a preset is applied to a label — from the label panel, to a
+   *  new label by the add-label tool, or by a script. Return commands to record
+   *  them in the same undo step as the preset (e.g. a `setAreaUserDataEntry`
+   *  remembering which preset a label came from); return nothing to just observe.
+   *  The editor keeps no record of this itself. */
+  onLabelPresetApplied?(ctx: LabelPresetAppliedContext): Command[] | void;
   /** Override how label pixmaps relate to Mudlet's own label rendering — whether
    *  the pixmap this editor draws is what Mudlet shows, and how far it is
    *  supersampled. Only the fields a plugin returns are overridden; anything

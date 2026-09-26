@@ -1,7 +1,7 @@
 import type { MapRenderer, Settings } from 'mudlet-map-renderer';
 import i18n from '../i18n';
 import { clientToMap, snap } from './coords';
-import { pushCommand, buildDeleteNeighborEdits } from './commands';
+import { pushBatch, pushCommand, buildDeleteNeighborEdits } from './commands';
 import { pasteClipboard, buildPasteStatus } from './clipboard';
 import { allHitsAt, exitAt, customLineAt, customLinePointAt, customLineSegmentAt, handleDirFor, labelAt, labelResizeHandleAt, roomAtCell, stubAt } from './hitTest';
 import {
@@ -16,7 +16,7 @@ import { store } from './store';
 import { revealRoom } from './navigate';
 import { canRepaintLive, generateLabelPixmap } from './labelPixmap';
 import { PIXMAP_REGEN, pixmapRefFor } from './pixmapRefs';
-import { applyLabelPreset, getLabelPreset } from './labelPresets';
+import { applyLabelPreset, getLabelPreset, labelPresetAppliedCommands } from './labelPresets';
 import {
   ROOM_SYMBOL_COLOR,
   ROOM_UI_BORDER_COLOR,
@@ -1650,7 +1650,10 @@ export const addLabelTool: Tool = {
       const dragged = dragW >= 0.5 || dragH >= 0.5;
       label = applyLabelPreset(label, dragged ? { ...preset, size: undefined, fitToText: false } : preset);
     }
-    pushCommand({ kind: 'addLabel', areaId: p.areaId, label }, ctx.scene);
+    const extra = preset
+      ? labelPresetAppliedCommands({ preset, areaId: p.areaId, labelId: id, before: null, after: label, source: 'newLabel', map: ac.map })
+      : [];
+    pushBatch([{ kind: 'addLabel', areaId: p.areaId, label }, ...extra], ctx.scene);
     ctx.refresh();
     store.bumpData();
     store.setState({

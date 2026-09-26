@@ -15,7 +15,7 @@ import {
   resolveLabelPadding,
 } from '../../editor/labelPixmap';
 import { getLabelStyle, getLabelStyles, resolveStyleParams, styleUses, type LabelStyleParam } from '../../editor/labelStyles';
-import { applyLabelPreset, getLabelPresets, renderLabelPresetPreview, type LabelPreset } from '../../editor/labelPresets';
+import { applyLabelPreset, getLabelPresets, labelPresetAppliedCommands, renderLabelPresetPreview, type LabelPreset } from '../../editor/labelPresets';
 import { CheckboxField, Field, ColorSwatch, mudletColorToHex, hexToMudletColor } from '../panelShared';
 import { warningKey } from './MapPanel';
 import { loadAcks, saveAcks, mapAckKey } from '../../editor/warningAcks';
@@ -455,6 +455,10 @@ export function LabelPanel({ selection, sceneRef }: LabelPanelProps) {
     const next = applyLabelPreset(cur, preset);
     const cmds = labelDiffCommands(selection.areaId, selection.id, cur, next);
     cmds.push(...pixmapCmd(next));
+    const map = store.getState().map;
+    if (map) {
+      cmds.push(...labelPresetAppliedCommands({ preset, areaId: selection.areaId, labelId: selection.id, before: cur, after: next, source: 'panel', map }));
+    }
     if (cmds.length === 0) return;
     pushBatch(cmds, scene);
     scene.refresh();

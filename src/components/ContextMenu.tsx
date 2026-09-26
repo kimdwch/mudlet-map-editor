@@ -7,6 +7,7 @@ import { refreshPeers, sendRoomsToPeer, type PeerInfo } from '../editor/peers';
 import { hitToSelection, hitStatusLabel } from '../editor/tools';
 import type { HitItem } from '../editor/types';
 import type { SceneHandle } from '../editor/scene';
+import { formatCoord } from '../editor/coords';
 
 interface ContextMenuProps {
   sceneRef: { current: SceneHandle | null };
@@ -169,7 +170,7 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
 
     const openLabelMoveTo = () => {
       if (!snap) return;
-      setMoveLabelToDialog({ x: String(snap.pos[0]), y: String(snap.pos[1]), z: String(snap.pos[2]) });
+      setMoveLabelToDialog({ x: formatCoord(snap.pos[0]), y: formatCoord(snap.pos[1]), z: String(snap.pos[2]) });
     };
 
     const deleteLabel = () => {
@@ -186,8 +187,12 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
 
     const submitLabelMoveTo = () => {
       if (!moveLabelToDialog || !snap) return;
-      const newX = parseInt(moveLabelToDialog.x, 10);
-      const newY = parseInt(moveLabelToDialog.y, 10);
+      // Labels sit on fractional coordinates; an axis left as displayed keeps
+      // its exact value rather than the rounded one shown.
+      const parseAxis = (text: string, current: number) =>
+        text.trim() === formatCoord(current) ? current : parseFloat(text);
+      const newX = parseAxis(moveLabelToDialog.x, snap.pos[0]);
+      const newY = parseAxis(moveLabelToDialog.y, snap.pos[1]);
       const newZ = parseInt(moveLabelToDialog.z, 10);
       if (isNaN(newX) || isNaN(newY) || isNaN(newZ)) return;
       if (newX !== snap.pos[0] || newY !== snap.pos[1] || newZ !== snap.pos[2]) {
@@ -200,7 +205,7 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
         }, sceneRef.current);
         sceneRef.current?.refresh();
         store.bumpData();
-        store.setState({ status: t('menu.movedLabel', { id: menu.labelId, x: newX, y: newY, z: newZ }) });
+        store.setState({ status: t('menu.movedLabel', { id: menu.labelId, x: formatCoord(newX), y: formatCoord(newY), z: newZ }) });
       }
       store.setState({ contextMenu: null });
     };
@@ -219,6 +224,7 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
               <label>X</label>
               <input
                 type="number"
+                step="any"
                 value={moveLabelToDialog.x}
                 onChange={(e) => setMoveLabelToDialog((d) => d && { ...d, x: e.target.value })}
               />
@@ -227,6 +233,7 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
               <label>Y</label>
               <input
                 type="number"
+                step="any"
                 value={moveLabelToDialog.y}
                 onChange={(e) => setMoveLabelToDialog((d) => d && { ...d, y: e.target.value })}
               />

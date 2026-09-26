@@ -268,6 +268,12 @@ export type PendingLabelDrag = {
   /** Render-space offset from label top-left to click point, to avoid jump on drag start. */
   offsetX: number;
   offsetY: number;
+  /** Client-space pointer-down position; the label stays put until the pointer
+   *  leaves a small radius around it, so a plain click never nudges it. */
+  startClientX: number;
+  startClientY: number;
+  /** Set once the pointer has left that radius. */
+  dragging: boolean;
 };
 
 export type PendingLabelRect = {

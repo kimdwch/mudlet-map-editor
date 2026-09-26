@@ -4,6 +4,11 @@ export function snap(value: number, step: number): number {
   return Math.round(value / step) * step;
 }
 
+/** A map coordinate for display: at most 4 decimals, trailing zeros dropped. */
+export function formatCoord(value: number): string {
+  return String(Number(value.toFixed(4)));
+}
+
 export function clientToMap(
   renderer: MapRenderer,
   container: HTMLElement,

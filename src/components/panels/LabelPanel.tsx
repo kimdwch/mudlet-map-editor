@@ -21,6 +21,7 @@ import { warningKey } from './MapPanel';
 import { loadAcks, saveAcks, mapAckKey } from '../../editor/warningAcks';
 import { FontPicker } from '../FontPicker';
 import { PIXMAP_REGEN, pixmapRefFor, poolPixmap } from '../../editor/pixmapRefs';
+import { formatCoord } from '../../editor/coords';
 
 const COMMON_FONTS = [
   'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Georgia',
@@ -621,7 +622,7 @@ export function LabelPanel({ selection, sceneRef }: LabelPanelProps) {
         </div>
       )}
       <p className="hint" style={{ marginBottom: 8 }}>
-        {t('label.position', { x: snap.pos[0], y: snap.pos[1], z: snap.pos[2] })}
+        {t('label.position', { x: formatCoord(snap.pos[0]), y: formatCoord(snap.pos[1]), z: snap.pos[2] })}
       </p>
 
       <div style={{ display: 'flex', marginBottom: 10, border: '1px solid var(--border, #444)', borderRadius: 4, overflow: 'hidden' }}>

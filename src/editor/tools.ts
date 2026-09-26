@@ -68,6 +68,9 @@ function mapCoord(ctx: ToolContext, ev: { clientX: number; clientY: number }) {
   return clientToMap(ctx.renderer, ctx.container, ev.clientX, ev.clientY);
 }
 
+/** Pixels the pointer must travel before a label drag starts moving it. */
+const LABEL_DRAG_THRESHOLD_PX = 3;
+
 function snappedCoord(ctx: ToolContext, ev: { clientX: number; clientY: number }) {
   const c = mapCoord(ctx, ev);
   const s = store.getState();
@@ -368,6 +371,9 @@ export const selectTool: Tool = {
             originPos: [...rawLabel.pos] as [number, number, number],
             offsetX: c.x - labelRenderX,
             offsetY: c.y - labelRenderY,
+            startClientX: ev.clientX,
+            startClientY: ev.clientY,
+            dragging: false,
           } : null,
         });
         ctx.container.setPointerCapture(ev.pointerId);
@@ -509,10 +515,19 @@ export const selectTool: Tool = {
     }
 
     if (s.pending?.kind === 'labelDrag') {
+      if (!s.pending.dragging) {
+        if (Math.hypot(ev.clientX - s.pending.startClientX, ev.clientY - s.pending.startClientY) < LABEL_DRAG_THRESHOLD_PX) return true;
+        store.setState({ pending: { ...s.pending, dragging: true } });
+      }
       const raw = mapCoord(ctx, ev);
       const rawPos = { x: raw.x - s.pending.offsetX, y: raw.y - s.pending.offsetY };
-      const pos = s.snapToGrid ? { x: snap(rawPos.x, s.gridStep), y: snap(rawPos.y, s.gridStep) } : rawPos;
       const current = ctx.scene.reader.getLabelSnapshot(s.pending.areaId, s.pending.labelId);
+      // Snap the label's centre to the grid, so it sits centred on a room;
+      // Shift snaps the top-left corner instead.
+      const half = current && !ev.shiftKey ? { x: current.size[0] / 2, y: current.size[1] / 2 } : { x: 0, y: 0 };
+      const pos = s.snapToGrid
+        ? { x: snap(rawPos.x + half.x, s.gridStep) - half.x, y: snap(rawPos.y + half.y, s.gridStep) - half.y }
+        : rawPos;
       const dx = current ? pos.x - current.pos[0] : 1;
       const dy = current ? pos.y - (-current.pos[1]) : 1;
       if (dx !== 0 || dy !== 0) {

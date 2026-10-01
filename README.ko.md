@@ -4,6 +4,7 @@
 
 [Mudlet](https://www.mudlet.org/)의 `.dat` 바이너리 지도 파일을 편집하는 브라우저 기반 시각 편집기입니다. 별도 설치 없이 브라우저에서 바로 MUD 지도를 불러오고, 편집하고, 저장할 수 있습니다.
 
+**바로 사용하기:** https://kimdwch.github.io/mudlet-map-editor/
 ## 기능
 
 - **시각적 편집** — 대화형 캔버스에서 방을 추가, 이동, 삭제

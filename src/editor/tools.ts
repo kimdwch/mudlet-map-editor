@@ -1202,7 +1202,7 @@ export const addRoomTool: Tool = {
       return true;
     }
     const id = nextRoomId(ac.map);
-    const room = createDefaultRoom(id, ac.areaId, rawX, rawY, ac.z);
+    const room = createDefaultRoom(id, ac.areaId, rawX, rawY, ac.z, ac.state.defaultRoomEnvironment);
     pushCommand({ kind: 'addRoom', id, room, areaId: ac.areaId }, ctx.scene);
     ctx.refresh();
     store.bumpStructure();

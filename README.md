@@ -10,7 +10,7 @@ A browser-based visual editor for [Mudlet](https://www.mudlet.org/) `.dat` binar
 - **Exit management** — create bidirectional or one-way exits between rooms in 14+ directions
 - **Labels** — place text labels with custom fonts, colors, and optional images
 - **Custom lines** — draw waypoint-based paths with configurable colors and arrowheads
-- **Area & environment management** — organize rooms into areas, customize terrain colors
+- **Area & environment management** — organize rooms into areas and customize terrain colors. The Colors tab and toolbar's new-room color share a wide palette: a color wheel with hue, saturation, brightness and HEX controls above transparent/preset swatches. Apply the detailed color with “Apply color”; “More colors” also opens the native color dialog. Custom transparent colors store alpha 0; the new-room transparent default uses no environment.
 - **Swatches / Paint tool** — define symbol+environment presets and paint them onto rooms in one click
 - **Undo/redo** — full command history with descriptive labels
 - **Binary I/O** — load and save Mudlet `.dat` files directly in the browser; also load from URL

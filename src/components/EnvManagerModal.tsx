@@ -4,6 +4,7 @@ import { store, useEditorState } from '../editor/store';
 import { pushCommand } from '../editor/commands';
 import type { SceneHandle } from '../editor/scene';
 import type { MudletColor } from '../mapIO';
+import { RoomColorPicker } from './RoomColorPicker';
 
 interface EnvPanelProps {
   sceneRef: { current: SceneHandle | null };
@@ -13,7 +14,8 @@ function mudletColorToHex(c: MudletColor): string {
   return '#' + [c.r, c.g, c.b].map((v) => v.toString(16).padStart(2, '0')).join('');
 }
 
-function hexToMudletColor(hex: string): MudletColor {
+function hexToMudletColor(hex: string | null): MudletColor {
+  if (hex === null) return { spec: 1, alpha: 0, r: 0, g: 0, b: 0, pad: 0 };
   return { spec: 1, alpha: 255, r: parseInt(hex.slice(1, 3), 16), g: parseInt(hex.slice(3, 5), 16), b: parseInt(hex.slice(5, 7), 16), pad: 0 };
 }
 
@@ -25,7 +27,7 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
   const [selectedEnvId, setSelectedEnvId] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newId, setNewId] = useState('');
-  const [newColor, setNewColor] = useState('#888888');
+  const [newColor, setNewColor] = useState<string | null>('#888888');
 
   if (!map) return <div className="modal-empty">{t('noMap')}</div>;
 
@@ -37,6 +39,7 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
     .filter(({ envId }) => !filterNum || String(envId).includes(filterNum))
     .map(({ envId, color }) => ({
       envId,
+      transparent: color.alpha === 0,
       rgbValue: reader ? reader.getColorValue(envId) : `rgb(${color.r},${color.g},${color.b})`,
     }));
 
@@ -60,7 +63,7 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
     setIsAdding(true);
   };
 
-  const handleColorChange = (envId: number, hex: string) => {
+  const handleColorChange = (envId: number, hex: string | null) => {
     const color = hexToMudletColor(hex);
     const from = map.mCustomEnvColors[envId] ?? null;
     pushCommand({ kind: 'setCustomEnvColor', envId, from, to: color }, sceneRef.current);
@@ -87,7 +90,7 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
     pushCommand({ kind: 'setCustomEnvColor', envId: id, from, to: color }, sceneRef.current);
     sceneRef.current?.refresh();
     store.bumpData();
-    store.setState({ status: t('customEnvSet', { id, color: newColor }) });
+    store.setState({ status: t('customEnvSet', { id, color: newColor ?? t('transparent') }) });
     setNewId('');
     setNewColor('#888888');
     setIsAdding(false);
@@ -106,12 +109,12 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
       </div>
 
       <div className="env-tile-grid">
-        {envList.map(({ envId, rgbValue }) => (
+        {envList.map(({ envId, rgbValue, transparent }) => (
           <button
             key={envId}
             type="button"
-            className={`env-tile${selectedEnvId === envId ? ' selected' : ''}`}
-            style={{ background: rgbValue }}
+            className={`env-tile${transparent ? ' room-color-transparent' : ''}${selectedEnvId === envId ? ' selected' : ''}`}
+            style={{ backgroundColor: rgbValue }}
             title={t('envTitle', { id: envId })}
             onClick={() => handleTileClick(envId)}
           >
@@ -142,12 +145,7 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
             className="env-detail-input"
           />
           <label className="env-detail-label">{t('color')}</label>
-          <input
-            type="color"
-            value={newColor}
-            onChange={(e) => setNewColor(e.target.value)}
-            style={{ width: '100%', height: 36 }}
-          />
+          <RoomColorPicker color={newColor} onChange={setNewColor} />
           <button type="button" className="env-detail-btn" onClick={handleAdd} disabled={!newId}>
             {t('add')}
           </button>
@@ -156,14 +154,13 @@ export function EnvPanel({ sceneRef }: EnvPanelProps) {
 
       {!isAdding && selectedEntry && (
         <div className="env-detail" style={{ marginTop: 12 }}>
-          <div className="env-detail-swatch" style={{ background: selectedEntry.rgbValue }} />
+          <div className={`env-detail-swatch${selectedEntry.transparent ? ' room-color-transparent' : ''}`} style={{ backgroundColor: selectedEntry.rgbValue }} />
           <p className="env-detail-id">Env #{selectedEntry.envId}</p>
           <label className="env-detail-label">{t('color')}</label>
-          <input
-            type="color"
-            value={mudletColorToHex(map.mCustomEnvColors[selectedEntry.envId]!)}
-            onChange={(e) => handleColorChange(selectedEntry.envId, e.target.value)}
-            style={{ width: '100%', height: 36, marginBottom: 6 }}
+          <RoomColorPicker
+            color={map.mCustomEnvColors[selectedEntry.envId]!.alpha === 0
+              ? null : mudletColorToHex(map.mCustomEnvColors[selectedEntry.envId]!)}
+            onChange={(color) => handleColorChange(selectedEntry.envId, color)}
           />
           <button
             type="button"

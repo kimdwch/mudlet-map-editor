@@ -28,6 +28,8 @@ export const pl: EditorLocaleComplete = {
     redoTitle: 'Ponów ({{modKey}}+Shift+Z)',
     swatches: 'Próbki',
     swatchesTitle: 'Paleta próbek lokacji',
+    defaultRoomColor: 'Kolor nowych lokacji',
+    defaultRoomColorTitle: 'Wybierz kolor przypisywany nowo tworzonym lokacjom',
   },
   status: {
     initialStatus: 'Wczytaj plik .dat Mudlet, aby rozpocząć.',

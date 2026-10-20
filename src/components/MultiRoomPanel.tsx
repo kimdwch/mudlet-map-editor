@@ -4,6 +4,7 @@ import { store } from '../editor/store';
 import { pushCommand } from '../editor/commands';
 import type { Command } from '../editor/types';
 import type { SceneHandle } from '../editor/scene';
+import { NO_ENVIRONMENT_COLOR } from '../editor/mapHelpers';
 import type { MudletMap } from '../mapIO';
 import { EnvPicker } from './EnvPicker';
 import { LockIcon } from './icons';
@@ -143,7 +144,7 @@ export function MultiRoomPanel({ selection, map, sceneRef }: MultiRoomPanelProps
     store.setState({ status: t('multiRoom.applied', { count: ids.length }) });
   };
 
-  const envColor = sceneRef.current?.reader.getColorValue(envDraft) ?? 'rgb(114,1,0)';
+  const envColor = sceneRef.current?.reader.getColorValue(envDraft) ?? NO_ENVIRONMENT_COLOR;
 
   return (
     <div className="panel-content">

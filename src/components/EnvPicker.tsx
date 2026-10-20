@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { MudletMap } from '../mapIO';
 import type { SceneHandle } from '../editor/scene';
+import { NO_ENVIRONMENT_COLOR } from '../editor/mapHelpers';
 
 interface EnvPickerProps {
   map: MudletMap;
@@ -37,7 +38,7 @@ export function EnvPicker({ map, sceneRef, currentEnvId, onSelect, onClose }: En
   const envs = Array.from(ids)
     .sort((a, b) => a - b)
     .filter((id) => !filterNum || String(id).startsWith(filterNum))
-    .map((envId) => ({ envId, color: reader ? reader.getColorValue(envId) : 'rgb(114,1,0)' }));
+    .map((envId) => ({ envId, color: reader ? reader.getColorValue(envId) : NO_ENVIRONMENT_COLOR }));
 
   return (
     <div ref={ref} className="env-picker-popup">
@@ -52,8 +53,7 @@ export function EnvPicker({ map, sceneRef, currentEnvId, onSelect, onClose }: En
         <div className="env-picker-grid">
           <button
             type="button"
-            className={`env-picker-swatch${currentEnvId === -1 ? ' selected' : ''}`}
-            style={{ background: 'rgb(114,1,0)' }}
+            className={`env-picker-swatch env-picker-swatch-transparent${currentEnvId === -1 ? ' selected' : ''}`}
             title={t('noneTitle')}
             onClick={() => { onSelect(-1); onClose(); }}
           >

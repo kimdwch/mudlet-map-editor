@@ -1,6 +1,7 @@
 import type { MudletMap, MudletRoom, MudletColor } from '../../mapIO';
 import type { LabelSnapshot } from '../types';
 import { buildRendererInput } from '../../mapIO';
+import { NO_ENVIRONMENT_COLOR } from '../mapHelpers';
 import { CARDINAL_DIRECTIONS, DIR_SHORT, DIR_INDEX, DEFAULT_LABEL_FONT, type Direction, type LabelBorder, type LabelFont, type LabelPadding, type LabelStyleParams } from '../types';
 import { getLabelPolicy } from '../labelPolicy';
 import { generateLabelPixmap, dataUrlToBuffer, normaliseLabelPadding, PX_PER_UNIT } from '../labelPixmap';
@@ -837,6 +838,10 @@ export class EditorMapReader {
   hasVisitedRoom(): boolean { return false; }
 
   getColorValue(envId: number): string {
+    if (envId === -1) return NO_ENVIRONMENT_COLOR;
+    const colorId = this.raw.envColors[envId] ?? envId;
+    const color = this.raw.mCustomEnvColors[colorId];
+    if (color && color.alpha < 255) return `rgba(${color.r}, ${color.g}, ${color.b}, ${color.alpha / 255})`;
     return this.colors[envId]?.rgbValue ?? defaultColor.rgbValue;
   }
 

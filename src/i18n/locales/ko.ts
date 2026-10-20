@@ -28,6 +28,8 @@ export const ko: EditorLocaleComplete = {
     redoTitle: '다시 실행 ({{modKey}}+Shift+Z)',
     swatches: '견본',
     swatchesTitle: '방 견본 팔레트',
+    defaultRoomColor: '새 방 색상',
+    defaultRoomColorTitle: '앞으로 생성할 방에 적용할 색상 선택',
   },
   status: {
     initialStatus: '시작하려면 Mudlet .dat 파일을 불러오세요.',

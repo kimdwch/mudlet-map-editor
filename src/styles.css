@@ -242,6 +242,172 @@ html, body, #root {
   gap: 6px;
 }
 
+.toolbar-default-room-color {
+  position: relative;
+}
+
+.default-room-color-swatch {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 1px solid rgba(230, 233, 239, 0.5);
+  border-radius: 3px;
+}
+
+.default-room-color-swatch.transparent,
+.room-color-picker .room-color-transparent,
+.env-tile.room-color-transparent,
+.env-detail-swatch.room-color-transparent,
+.env-picker-popup .env-picker-swatch-transparent {
+  background-color: transparent;
+  background-image: linear-gradient(45deg, #7c8593 25%, transparent 25%),
+    linear-gradient(-45deg, #7c8593 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #7c8593 75%),
+    linear-gradient(-45deg, transparent 75%, #7c8593 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.toolbar-default-room-color .env-picker-popup {
+  top: calc(100% + 5px);
+  left: 0;
+}
+
+.room-color-picker {
+  position: relative;
+}
+
+.room-color-picker > .env-pick-btn {
+  width: 100%;
+  height: 36px;
+}
+
+.room-color-popup {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  z-index: 100;
+  width: min(420px, calc(100vw - 40px));
+  box-sizing: border-box;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding: 10px;
+  background: #171d29;
+  border: 1px solid #55606f;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px #0008;
+}
+
+.toolbar-default-room-color .room-color-popup {
+  left: 0;
+  right: auto;
+}
+
+.room-color-none {
+  width: 100%;
+  margin-bottom: 8px;
+  color: #fff;
+  text-shadow: 0 1px 3px #000;
+}
+
+.room-color-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.room-color-grid button {
+  height: 28px;
+  border: 1px solid #77808e;
+  border-radius: 3px;
+}
+
+.room-color-popup button[aria-pressed="true"] {
+  outline: 2px solid #72ddff;
+  outline-offset: 1px;
+}
+
+.room-color-popup label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.room-color-popup input[type="color"] {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  height: 32px;
+}
+
+.room-color-detail {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.room-color-wheel {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, white, transparent),
+    conic-gradient(from 90deg, red, yellow, lime, cyan, blue, magenta, red);
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.room-color-wheel span {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border: 2px solid white;
+  box-shadow: 0 0 0 1px black;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.room-color-controls {
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room-color-preview {
+  height: 28px;
+  border: 1px solid #77808e;
+  border-radius: 3px;
+}
+
+.room-color-controls label {
+  font-size: 12px;
+}
+
+.room-color-controls input[type="range"] {
+  min-width: 0;
+  width: 80px;
+  flex: 1;
+}
+
+.room-color-controls input:not([type]) {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.room-color-controls .room-color-native {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+
 
 .toolbar h1 {
   margin: 0 8px 0 0;

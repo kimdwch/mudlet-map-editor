@@ -150,6 +150,7 @@ export interface EditorState {
   hover: HoverTarget;
   pending: Pending;
   snapToGrid: boolean;
+  defaultRoomEnvironment: number;
   gridStep: number;
   /** When true (Space held), pointer input defers to the renderer's pan regardless of active tool. */
   spaceHeld: boolean;
@@ -248,6 +249,7 @@ const initial: EditorState = {
   hover: null,
   pending: null,
   snapToGrid: userSettings.snapToGrid,
+  defaultRoomEnvironment: -1,
   gridStep: 1,
   spaceHeld: false,
   undo: [],

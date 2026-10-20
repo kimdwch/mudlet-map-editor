@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ToolbarAction } from '../editor/plugin';
 
 /** Render a single ToolbarAction. `filePicker` produces a <label> wrapping a
@@ -54,16 +54,22 @@ import { SaveSplitButton } from './SaveSplitButton';
 import { DropdownSelect } from './DropdownSelect';
 import { useToolButtons } from './HelpModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { RoomColorPicker } from './RoomColorPicker';
+import { hexToMudletColor, mudletColorToHex } from './panelShared';
+import { pushCommand } from '../editor/commands';
+import { NO_ENVIRONMENT_COLOR } from '../editor/mapHelpers';
+import type { SceneHandle } from '../editor/scene';
 
 /** `logo` is the plugin override slot. `undefined` means no plugin claimed it
  *  (toolbar falls back to the built-in Mudlet logo); any other value — including
  *  `null` — is rendered as-is, so a plugin can explicitly hide the slot.
  *  `transformActions` is the composed plugin transform applied to the built-in
  *  file-action list (see EditorPlugin#toolbarActions). */
-export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, onHelpClick, onLoadFromUrl, onSave, onSearchClick, onSettingsClick, onDiffClick }: { title?: string; logo?: ReactNode; transformActions?: (actions: ToolbarAction[]) => ToolbarAction[]; onHelpClick: () => void; onLoadFromUrl: () => void; onSave?: (bytes: Uint8Array, format: MapFormat) => void; onSearchClick?: () => void; onSettingsClick?: () => void; onDiffClick?: () => void }) {
+export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, sceneRef, onHelpClick, onLoadFromUrl, onSave, onSearchClick, onSettingsClick, onDiffClick }: { title?: string; logo?: ReactNode; transformActions?: (actions: ToolbarAction[]) => ToolbarAction[]; sceneRef: { current: SceneHandle | null }; onHelpClick: () => void; onLoadFromUrl: () => void; onSave?: (bytes: Uint8Array, format: MapFormat) => void; onSearchClick?: () => void; onSettingsClick?: () => void; onDiffClick?: () => void }) {
   const { t } = useTranslation('editor');
   const toolButtons = useToolButtons();
   const activeTool = useEditorState((s) => s.activeTool);
+  const defaultRoomEnvironment = useEditorState((s) => s.defaultRoomEnvironment);
   const map = useEditorState((s) => s.map);
   const mapLoaded = map != null;
   const loaded = useEditorState((s) => s.loaded);
@@ -84,6 +90,15 @@ export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, o
   const dirty = undoLen !== savedUndoLength;
   const formatId = useEditorState((s) => s.formatId);
   const structureVersion = useEditorState((s) => s.structureVersion);
+  const dataVersion = useEditorState((s) => s.dataVersion);
+
+  useEffect(() => {
+    if (map && defaultRoomEnvironment > 256
+      && !map.mCustomEnvColors[defaultRoomEnvironment]
+      && map.envColors[defaultRoomEnvironment] == null) {
+      store.setState({ defaultRoomEnvironment: -1 });
+    }
+  }, [map, defaultRoomEnvironment, dataVersion]);
 
   const areaOptions = useMemo(() => {
     if (!map) return [] as { id: number; name: string }[];
@@ -105,6 +120,30 @@ export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, o
   }, [map, currentAreaId, currentZ, structureVersion]);
 
   const [gotoInput, setGotoInput] = useState('');
+  const defaultRoomColor = sceneRef.current?.reader.getColorValue(defaultRoomEnvironment) ?? NO_ENVIRONMENT_COLOR;
+  const defaultCustomColor = map?.mCustomEnvColors[defaultRoomEnvironment];
+  const defaultPickerColor = defaultRoomEnvironment === -1 || defaultCustomColor?.alpha === 0
+    ? null : defaultCustomColor ? mudletColorToHex(defaultCustomColor) : '#888888';
+
+  const selectDefaultRoomColor = (hex: string | null) => {
+    if (!map) return;
+    if (hex === null) {
+      store.setState({ defaultRoomEnvironment: -1 });
+      return;
+    }
+    const color = hexToMudletColor(hex);
+    const existing = Object.entries(map.mCustomEnvColors).find(([id, entry]) =>
+      map.envColors[Number(id)] == null
+      && entry.alpha === 255 && entry.r === color.r && entry.g === color.g && entry.b === color.b);
+    let environment = existing ? Number(existing[0]) : 257;
+    if (!existing) {
+      while (map.mCustomEnvColors[environment] || map.envColors[environment] != null
+        || Object.values(map.rooms).some(room => room.environment === environment)) environment++;
+      pushCommand({ kind: 'setCustomEnvColor', envId: environment, from: null, to: color }, sceneRef.current);
+      store.bumpData();
+    }
+    store.setState({ defaultRoomEnvironment: environment });
+  };
 
   const handleGotoRoom = () => {
     const id = parseInt(gotoInput, 10);
@@ -136,6 +175,7 @@ export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, o
       formatId: format.id,
       currentAreaId: -1,
       currentZ: 0,
+      defaultRoomEnvironment: -1,
       selection: null,
       hover: null,
       pending: null,
@@ -407,6 +447,18 @@ export function Toolbar({ title = 'Mudlet Map Editor', logo, transformActions, o
                 <span>{tb.label}</span>
               </button>
             ))}
+          </div>
+
+          <div className="toolbar-default-room-color">
+            <RoomColorPicker
+              color={defaultPickerColor}
+              onChange={selectDefaultRoomColor}
+              className="tool-btn"
+              title={t('toolbar.defaultRoomColorTitle')}
+            >
+              <span className={`default-room-color-swatch${defaultPickerColor === null ? ' transparent' : ''}`} style={{ backgroundColor: defaultRoomColor }} />
+              <span>{t('toolbar.defaultRoomColor')}</span>
+            </RoomColorPicker>
           </div>
 
           <div className="toolbar-sep" />

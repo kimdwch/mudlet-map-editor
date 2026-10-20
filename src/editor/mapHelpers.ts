@@ -2,6 +2,8 @@ import type { MudletMap, MudletRoom } from '../mapIO';
 import type { Direction } from './types';
 import { CARDINAL_DIRECTIONS, OPPOSITE } from './types';
 
+export const NO_ENVIRONMENT_COLOR = 'rgba(0, 0, 0, 0)';
+
 export function nextAreaId(map: MudletMap): number {
   const ids = Object.keys(map.areas).map(Number);
   return ids.length === 0 ? 1 : Math.max(...ids) + 1;
@@ -16,14 +18,14 @@ export function nextRoomId(map: MudletMap): number {
   return max + 1;
 }
 
-export function createDefaultRoom(id: number, areaId: number, x: number, y: number, z: number): MudletRoom {
+export function createDefaultRoom(id: number, areaId: number, x: number, y: number, z: number, environment = -1): MudletRoom {
   return {
     area: areaId,
     x, y, z,
     north: -1, northeast: -1, east: -1, southeast: -1,
     south: -1, southwest: -1, west: -1, northwest: -1,
     up: -1, down: -1, in: -1, out: -1,
-    environment: -1,
+    environment,
     weight: 1,
     name: `Room ${id}`,
     isLocked: false,

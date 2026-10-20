@@ -4,6 +4,7 @@ import { store, saveSwatchState, useEditorState } from '../editor/store';
 import type { Swatch, SwatchSet } from '../editor/types';
 import type { SceneHandle } from '../editor/scene';
 import { BORDER_THICKNESS_MIN, BORDER_THICKNESS_MAX } from '../editor/roomFlags';
+import { NO_ENVIRONMENT_COLOR } from '../editor/mapHelpers';
 import { EnvPicker } from './EnvPicker';
 import { ColorSwatch } from './panelShared';
 
@@ -70,7 +71,7 @@ export function SwatchPalette({ sceneRef }: { sceneRef: { current: SceneHandle |
   const getEnvColor = (envId: number) => {
     const reader = sceneRef.current?.reader;
     if (reader) return reader.getColorValue(envId);
-    return 'rgb(114,1,0)';
+    return NO_ENVIRONMENT_COLOR;
   };
 
   const commit = (newSets: SwatchSet[], newSetId?: string | null, newSwatchId?: string | null) => {

@@ -6,6 +6,7 @@ import { pushCommand } from '../editor/commands';
 import { normalizeCustomLineKey, OPPOSITE, DIR_SHORT, DIR_INDEX, SHORT_TO_DIR, type Command, type CustomLineCompanion, type SetCustomLineCompanion, type Direction } from '../editor/types';
 import type { SceneHandle } from '../editor/scene';
 import type { MudletMap } from '../mapIO';
+import { NO_ENVIRONMENT_COLOR } from '../editor/mapHelpers';
 import type { RoomPanelSection } from '../editor/plugin';
 import { createDefaultRoom } from '../editor/mapHelpers';
 import { roomAtCell } from '../editor/hitTest';
@@ -326,7 +327,7 @@ export function RoomPanel({ selection, room, map, sceneRef, pluginSections = [] 
       return;
     }
 
-    const newRoom = createDefaultRoom(nextId, room.area, targetX, targetY, targetZ);
+    const newRoom = createDefaultRoom(nextId, room.area, targetX, targetY, targetZ, store.getState().defaultRoomEnvironment);
     const previous = (room as any)[dir] ?? -1;
     pushCommand({
       kind: 'batch',
@@ -743,7 +744,7 @@ export function RoomPanel({ selection, room, map, sceneRef, pluginSections = [] 
     );
   };
 
-  const envColor = sceneRef.current?.reader.getColorValue(room.environment) ?? 'rgb(114,1,0)';
+  const envColor = sceneRef.current?.reader.getColorValue(room.environment) ?? NO_ENVIRONMENT_COLOR;
   const specialExits = Object.entries(room.mSpecialExits ?? {});
   const customLineEntries = Object.entries(room.customLines ?? {});
 

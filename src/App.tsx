@@ -742,7 +742,7 @@ export default function App({ plugins = [], title = 'Mudlet Map Editor' }: { plu
       <div className="map-viewport">
         <div ref={containerRef} className="map-container" />
         {!mapLoaded && <SessionsPanel />}
-        <Toolbar title={title} logo={pluginLogo} transformActions={transformToolbarActions} onHelpClick={() => setShowHelp(true)} onLoadFromUrl={() => setShowUrlLoad(true)} onSave={(bytes, format) => { for (const p of plugins) p.onMapSave?.(bytes, format); }} onSearchClick={() => setShowSearch((v) => !v)} onSettingsClick={() => setShowSettings(true)} onDiffClick={() => setShowDiff(true)} />
+        <Toolbar title={title} logo={pluginLogo} transformActions={transformToolbarActions} sceneRef={sceneRef} onHelpClick={() => setShowHelp(true)} onLoadFromUrl={() => setShowUrlLoad(true)} onSave={(bytes, format) => { for (const p of plugins) p.onMapSave?.(bytes, format); }} onSearchClick={() => setShowSearch((v) => !v)} onSettingsClick={() => setShowSettings(true)} onDiffClick={() => setShowDiff(true)} />
 <SidePanel sceneRef={sceneRef} extraTabs={pluginSidebarTabs} pluginRoomSections={pluginRoomSections} />
         <IncomingRoomsBanner />
         <LodBadge />

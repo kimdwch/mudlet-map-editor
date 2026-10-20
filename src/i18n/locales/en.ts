@@ -26,6 +26,8 @@ export const en = {
     redoTitle: 'Redo ({{modKey}}+Shift+Z)',
     swatches: 'Swatches',
     swatchesTitle: 'Room swatches palette',
+    defaultRoomColor: 'New room color',
+    defaultRoomColorTitle: 'Choose the color assigned to rooms created from now on',
   },
   status: {
     initialStatus: 'Load a Mudlet .dat file to begin.',

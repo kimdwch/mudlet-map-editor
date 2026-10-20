@@ -1361,11 +1361,11 @@ html, body, #root {
 }
 
 .room-coords {
-  font-size: 11px;
-  color: #6a7588;
+  font-size: inherit;
+  color: #fff176;
   text-transform: none;
   letter-spacing: 0;
-  font-weight: 400;
+  font-weight: 700;
   text-shadow: none;
 }
 

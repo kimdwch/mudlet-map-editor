@@ -4748,6 +4748,40 @@ html, body, #root {
 
 .context-menu-coords .context-menu-field {
   padding: 0;
+  min-width: 0;
+}
+
+.room-move-coordinate input[type="number"] {
+  height: 28px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.room-move-coordinate input::-webkit-inner-spin-button,
+.room-move-coordinate input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.room-move-coordinate-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.room-move-coordinate-steps button {
+  height: 28px;
+  min-width: 0;
+  padding: 0;
+  font-size: 16px;
+  color: #e6e9ef;
+  background: #1f2a3c;
+  border: 1px solid #55606f;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.room-move-coordinate-steps button:hover {
+  background: #344f76;
 }
 
 .context-menu-actions {

@@ -26,6 +26,38 @@ interface MoveLabelToState {
   z: string;
 }
 
+function MoveCoordinateInput({ axis, value, onChange }: {
+  axis: 'X' | 'Y' | 'Z';
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const step = (direction: number) => {
+    const input = inputRef.current;
+    if (!input) return;
+    if (direction > 0) input.stepUp();
+    else input.stepDown();
+    onChange(input.value);
+  };
+  return (
+    <div className="context-menu-field room-move-coordinate">
+      <label htmlFor={`room-move-${axis}`}>{axis}</label>
+      <input
+        ref={inputRef}
+        id={`room-move-${axis}`}
+        type="number"
+        value={value}
+        onChange={event => onChange(event.target.value)}
+      />
+      <div className="room-move-coordinate-steps">
+        <button type="button" aria-label={`${axis} +1`} onClick={() => step(1)}>▲</button>
+        <button type="button" aria-label={`${axis} = 0`} onClick={() => onChange('0')}>0</button>
+        <button type="button" aria-label={`${axis} -1`} onClick={() => step(-1)}>▼</button>
+      </div>
+    </div>
+  );
+}
+
 export function ContextMenu({ sceneRef }: ContextMenuProps) {
   const { t } = useTranslation('context');
   const menu = useEditorState((s) => s.contextMenu);
@@ -483,30 +515,14 @@ export function ContextMenu({ sceneRef }: ContextMenuProps) {
           </select>
         </div>
         <div className="context-menu-coords">
-          <div className="context-menu-field">
-            <label>X</label>
-            <input
-              type="number"
-              value={moveToDialog.x}
-              onChange={(e) => setMoveToDialog((d) => d && { ...d, x: e.target.value })}
+          {(['x', 'y', 'z'] as const).map(axis => (
+            <MoveCoordinateInput
+              key={axis}
+              axis={axis === 'x' ? 'X' : axis === 'y' ? 'Y' : 'Z'}
+              value={moveToDialog[axis]}
+              onChange={value => setMoveToDialog(state => state && { ...state, [axis]: value })}
             />
-          </div>
-          <div className="context-menu-field">
-            <label>Y</label>
-            <input
-              type="number"
-              value={moveToDialog.y}
-              onChange={(e) => setMoveToDialog((d) => d && { ...d, y: e.target.value })}
-            />
-          </div>
-          <div className="context-menu-field">
-            <label>Z</label>
-            <input
-              type="number"
-              value={moveToDialog.z}
-              onChange={(e) => setMoveToDialog((d) => d && { ...d, z: e.target.value })}
-            />
-          </div>
+          ))}
         </div>
         <div className="context-menu-actions">
           <button type="button" className="context-menu-btn" onClick={() => setMoveToDialog(null)}>

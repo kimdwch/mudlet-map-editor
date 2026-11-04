@@ -2,6 +2,7 @@ import Konva from 'konva';
 import type { CoordinateTransform, LiveEffect, ViewportBounds } from 'mudlet-map-renderer';
 import { store, type EditorState } from '../store';
 import type { SceneHandle } from '../scene';
+import { ONE_WAY_ARROW_SCALE } from '../stubStyle';
 
 const HALO_COLOR = '#00e5ff';
 const HALO_SHADOW = {
@@ -84,8 +85,8 @@ export class SelectedLinkEffect implements LiveEffect {
           fill: HALO_COLOR,
           strokeWidth: 0.08,
           dash: arrow.dash ? [...arrow.dash] : undefined,
-          pointerLength: arrow.pointerLength,
-          pointerWidth: arrow.pointerWidth,
+          pointerLength: arrow.pointerLength * ONE_WAY_ARROW_SCALE,
+          pointerWidth: arrow.pointerWidth * ONE_WAY_ARROW_SCALE,
           listening: false,
           ...HALO_SHADOW,
         }));

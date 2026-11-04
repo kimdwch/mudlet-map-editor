@@ -1,6 +1,7 @@
 import { MapRenderer, createSettings } from 'mudlet-map-renderer';
 import type { MudletMap } from '../../mapIO';
 import { EditorMapReader } from '../reader/EditorMapReader';
+import { stubStyle } from '../stubStyle';
 import { DiffHighlightOverlay, collectHighlights, type DiffHighlight } from './DiffHighlightOverlay';
 import type { MapDiff } from './mapDiff';
 
@@ -33,6 +34,7 @@ export function createDiffPane(
 
   const reader = new EditorMapReader(map);
   const renderer = new MapRenderer(reader as any, settings, container);
+  renderer.setStyle(stubStyle);
 
   const highlights: DiffHighlight[] = collectHighlights(diff, map, side, settings.roomSize);
   const overlay = new DiffHighlightOverlay(highlights);

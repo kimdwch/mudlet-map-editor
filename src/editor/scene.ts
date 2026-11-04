@@ -18,6 +18,7 @@ import { RouteEffect } from './effects/RouteEffect';
 import { attachRouteTracker } from './routes';
 import { attachPointerController } from './pointerController';
 import { store } from './store';
+import { stubStyle } from './stubStyle';
 
 export interface SceneHandle {
   renderer: MapRenderer;
@@ -63,6 +64,7 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
 
   const reader = new EditorMapReader(map);
   const renderer = new MapRenderer(reader as any, settings, container);
+  renderer.setStyle(stubStyle);
 
   const sceneRef: { current: SceneHandle | null } = { current: null };
 

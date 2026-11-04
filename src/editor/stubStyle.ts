@@ -2,6 +2,7 @@ import type {Style} from 'mudlet-map-renderer';
 
 const STUB_COLOR = '#ff0000';
 const STUB_DASH = [0.08, 0.08];
+const STUB_WIDTH_SCALE = 4;
 export const ONE_WAY_ARROW_SCALE = 0.3;
 
 function isOneWayExit(payload: unknown): boolean {
@@ -54,6 +55,9 @@ export const editorMapStyle: Style = {
           paint: {
             ...child.paint,
             stroke: STUB_COLOR,
+            strokeWidth: child.paint.strokeWidth == null
+              ? undefined
+              : child.paint.strokeWidth * STUB_WIDTH_SCALE,
             dash: STUB_DASH,
             dashEnabled: true,
           },

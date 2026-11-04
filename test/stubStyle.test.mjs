@@ -31,3 +31,14 @@ test('two-way exit arrows are left unchanged', () => {
   };
   assert.equal(editorMapStyle.transform(shape), shape);
 });
+
+test('stub line is four times its original width', () => {
+  const stubLine = {type: 'line', points: [0, 0, 1, 0], paint: {strokeWidth: 0.1}};
+  const transformed = editorMapStyle.transform({
+    type: 'group',
+    hit: {kind: 'stub'},
+    children: [stubLine],
+  });
+
+  assert.equal(transformed.children[0].paint.strokeWidth, 0.4);
+});

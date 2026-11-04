@@ -2,6 +2,7 @@ import { MapRenderer, createSettings } from 'mudlet-map-renderer';
 import type { MudletMap } from '../../mapIO';
 import { EditorMapReader } from '../reader/EditorMapReader';
 import { editorMapStyle } from '../stubStyle';
+import { OneWayExitOverlayEffect } from '../effects/OneWayExitOverlayEffect';
 import { DiffHighlightOverlay, collectHighlights, type DiffHighlight } from './DiffHighlightOverlay';
 import type { MapDiff } from './mapDiff';
 
@@ -35,6 +36,8 @@ export function createDiffPane(
   const reader = new EditorMapReader(map);
   const renderer = new MapRenderer(reader as any, settings, container);
   renderer.setStyle(editorMapStyle);
+  const oneWayExitOverlay = new OneWayExitOverlayEffect(() => renderer.getDrawnExits());
+  renderer.addLiveEffect('diff.oneWayExitOverlay', oneWayExitOverlay);
 
   const highlights: DiffHighlight[] = collectHighlights(diff, map, side, settings.roomSize);
   const overlay = new DiffHighlightOverlay(highlights);
@@ -62,6 +65,7 @@ export function createDiffPane(
     overlay,
     setView(areaId, z) {
       renderer.drawArea(areaId, z);
+      oneWayExitOverlay.sync();
       overlay.setView(areaId, z);
       const area = reader.getArea(areaId);
       const isEmpty = !area || area.getRooms().every((r) => r.z !== z);
@@ -83,6 +87,7 @@ export function createDiffPane(
     },
     destroy() {
       resizeObserver.disconnect();
+      renderer.removeLiveEffect('diff.oneWayExitOverlay');
       renderer.removeSceneOverlay('diff.highlight');
       renderer.destroy();
     },

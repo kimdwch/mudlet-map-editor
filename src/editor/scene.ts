@@ -15,6 +15,7 @@ import { SelectionCenterEffect } from './effects/SelectionCenterEffect';
 import { GhostRoomsEffect } from './effects/GhostRoomsEffect';
 import { PlacePreviewEffect } from './effects/PlacePreviewEffect';
 import { RouteEffect } from './effects/RouteEffect';
+import { OneWayExitOverlayEffect } from './effects/OneWayExitOverlayEffect';
 import { attachRouteTracker } from './routes';
 import { attachPointerController } from './pointerController';
 import { store } from './store';
@@ -81,6 +82,7 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
   const ghostRooms = new GhostRoomsEffect(settings, sceneRef);
   const placePreview = new PlacePreviewEffect(settings, sceneRef);
   const route = new RouteEffect(sceneRef);
+  const oneWayExitOverlay = new OneWayExitOverlayEffect(() => renderer.getDrawnExits());
 
   const gridOverlay = new GridOverlayEffect(
     settings.gridColor,
@@ -110,6 +112,7 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
   renderer.addLiveEffect('editor.placePreview', placePreview);
   renderer.addLiveEffect('editor.route', route);
   renderer.addLiveEffect('editor.gridOverlay', gridOverlay);
+  renderer.addLiveEffect('editor.oneWayExitOverlay', oneWayExitOverlay);
 
   // Mirror the renderer's LOD decision into the store (badge + tool guards).
   // Emitted on every scene build, so guard against redundant store writes.
@@ -144,6 +147,7 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
       // the next animation frame; rebuild now instead, so the area is right in
       // this frame — and at all in a hidden tab, where rAF never runs.
       renderer.refresh();
+      oneWayExitOverlay.sync();
       // Renderer skips applyViewportToStage for empty areas, so the grid overlay
       // won't get updateViewport. Sync it explicitly here.
       gridOverlay.syncVisibility();
@@ -153,9 +157,10 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
       renderer.drawArea(areaId, z);
       renderer.camera.panToMapPoint(mapX, mapY);
       renderer.refresh();   // same reason as setArea: don't wait for the scheduled frame
+      oneWayExitOverlay.sync();
       gridOverlay.syncVisibility();
     },
-    refresh() { renderer.refresh(); selectionHalo.syncPositions(); hoverHalo.syncPositions(); snapIndicator.syncPositions(); connectHandles.syncPositions(); labelHalo.syncPositions(); selectionCenter.syncPositions(); ghostRooms.syncPositions(); placePreview.syncPositions(); route.syncPositions(); },
+    refresh() { renderer.refresh(); oneWayExitOverlay.sync(); selectionHalo.syncPositions(); hoverHalo.syncPositions(); snapIndicator.syncPositions(); connectHandles.syncPositions(); labelHalo.syncPositions(); selectionCenter.syncPositions(); ghostRooms.syncPositions(); placePreview.syncPositions(); route.syncPositions(); },
     destroy() {
       delete container.dataset.editorCursor;
       detach();
@@ -188,6 +193,7 @@ export function createScene(map: MudletMap, container: HTMLDivElement): SceneHan
       detachRouteTracker();
       route.destroy();
       renderer.removeLiveEffect('editor.route');
+      renderer.removeLiveEffect('editor.oneWayExitOverlay');
       gridOverlay.destroy();
       renderer.removeLiveEffect('editor.gridOverlay');
       renderer.destroy();

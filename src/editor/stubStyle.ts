@@ -15,6 +15,7 @@ export const editorMapStyle: Style = {
     if (shape.type !== 'group') return shape;
 
     if (shape.hit?.kind === 'exit' && isOneWayExit(shape.hit.payload)) {
+      const lineColor = shape.children.find((child) => child.type === 'line')?.paint.stroke;
       return {
         ...shape,
         children: shape.children.map((child) => {
@@ -32,6 +33,7 @@ export const editorMapStyle: Style = {
             ],
             paint: {
               ...child.paint,
+              fill: lineColor ?? child.paint.fill,
               strokeWidth: child.paint.strokeWidth == null
                 ? undefined
                 : child.paint.strokeWidth * ONE_WAY_ARROW_SCALE,

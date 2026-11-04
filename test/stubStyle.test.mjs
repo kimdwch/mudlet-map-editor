@@ -3,7 +3,7 @@ import test from 'node:test';
 import {editorMapStyle} from '../src/editor/stubStyle.ts';
 
 test('one-way exit arrowhead is reduced to 30% while its shaft stays unchanged', () => {
-  const shaft = {type: 'line', points: [0, 0, 10, 0], paint: {strokeWidth: 0.1}};
+  const shaft = {type: 'line', points: [0, 0, 10, 0], paint: {stroke: '#7355cc', strokeWidth: 0.1}};
   const arrowhead = {
     type: 'polygon',
     vertices: [10, 0, 5, -2, 5, 2],
@@ -19,7 +19,7 @@ test('one-way exit arrowhead is reduced to 30% while its shaft stays unchanged',
   assert.deepEqual(transformed.children[1], {
     ...arrowhead,
     vertices: [10, 0, 8.5, -0.6, 8.5, 0.6],
-    paint: {fill: '#ffffff', strokeWidth: 0.042},
+    paint: {fill: '#7355cc', strokeWidth: 0.042},
   });
 });
 
